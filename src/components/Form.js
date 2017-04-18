@@ -9,25 +9,28 @@ export default class Form extends Component{
         this.state = {
             user: '',
             repos: [],
-            statusErr: ''
+            statusErr: '',
+            textInput: ''
         }
     }
       handleInputChange(event){
         var user = event.target.value;
         this.setState({
             user,
-        })
+        });
     }
     handleSubmit(event){
         event.preventDefault();
         var userID = this.state.user;
         this.getUserRepos(userID);
+        console.log('inputul se goleste', this);
+        this.refs.textInput = " ";
     }
     getUserRepos(userID){
        axios.get('https://api.github.com/users/' + userID + '/repos').then((response) => {
             console.log('response: ', response);
             this.setState({
-                repos: response.data
+                repos: response.data,
             }); 
         }).catch((error) => {
             if(error.response.status === 404){
@@ -46,26 +49,27 @@ export default class Form extends Component{
                 <div className="col-md-8 col-sm-8 coll-xs-8 col-offset-1 col-sm-offset-0">
                     <form className="navbar-form navbar-center" onSubmit={this.handleSubmit.bind(this)}>
                         <div className="form-group">
-                            <input type="text" className="form-control" placeholder="type username" onChange={this.handleInputChange.bind(this)} />
+                            <input type="text" className="form-control" placeholder="type username" ref={(input) => { this.textInput = input}} onChange={this.handleInputChange.bind(this)} />
                         </div>
                         <button className="btn btn-default" type="submit">Search user!</button>
                     </form>
                     
                     <div className="col-md-8 col-sm-8 coll-xs-8 col-offset-1 col-sm-offset-0">
                         {this.state.statusErr === 404 
-                        ? <h4>The GitHub user does not exist!</h4> 
-                        : <div className="text-center">{this.state.user} has the following repositories:
-                            {this.state.repos.map(repo => <li key={repo.id}>{repo.name}</li>)}</div> }
+                        ? <h4>The GitHub user: {this.state.user} does not exist!</h4> 
+                        : null }
+                        {this.state.repos.length 
+                        ? <div className="text-center">{this.state.user} has the following repositories:
+                            {this.state.repos.map(repo => <li key={repo.id}>{repo.name}</li>)}</div>
+                        : null}
 
-
-
-                        <ul className="list-unstyled">
+                        {/*<ul className="list-unstyled">
                         {this.state.receivedRepos && this.state.receivedRepos.map((repo) =>
                             <li key={repo.id}>
                                 <a href="https://github.com/ + {this.state.user} + '/' + {repo.name}">{repo.name}</a>
                             </li>
                         )}
-                        </ul>
+                        </ul>*/}
                     </div>
                 </div>
                 
